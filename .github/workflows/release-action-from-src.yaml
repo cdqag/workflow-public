@@ -82,5 +82,5 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ github.token }}
-          commit: refs/tags/${{ steps.semver.outputs.nextMajor }}
+          commit: refs/heads/${{ steps.semver.outputs.nextMajor }}
           tag: ${{ steps.semver.outputs.next }}
