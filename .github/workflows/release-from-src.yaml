@@ -1,0 +1,82 @@
+name: Release from source directory
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+        default: ubuntu-latest
+
+      src-dir:
+        type: string
+        default: src
+
+      commit-user-name:
+        type: string
+        default: github-actions[bot]
+
+      commit-user-email:
+        type: string
+        default: github-actions[bot]@users.noreply.github.com
+
+jobs:
+  release:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Get next version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: ${{ github.ref_name }}
+          noNewCommitBehavior: current
+          noVersionBumpBehavior: patch
+
+      - name: Move artifacts to temp directory
+        run: |
+          mv "${{ inputs.src-dir }}" "${{ runner.temp }}/"
+
+      - name: Setup envs
+        run: |
+          echo "NEXT_VERSION=${{ steps.semver.outputs.next }}" >> $GITHUB_ENV
+          echo "NEXT_MAJOR_VERSION=${{ steps.semver.outputs.nextMajor }}" >> $GITHUB_ENV
+
+      - name: Checkout to major version branch
+        run: |
+          set -e
+          git fetch origin
+
+          if git show-ref --verify --quiet refs/heads/$NEXT_MAJOR_VERSION; then
+            git checkout $NEXT_MAJOR_VERSION
+          else
+            git checkout -b $NEXT_MAJOR_VERSION
+          fi
+
+          find . -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} \;
+
+      - name: Move artifacts to working directory
+        run: |
+          mv "${{ runner.temp }}"/"${{ inputs.src-dir }}"/* ./
+
+      - name: Commit and push changes to major version branch
+        run: |
+          set -e
+          git config user.name "${{ inputs.commit-user-name }}"
+          git config user.email "${{ inputs.commit-user-email }}
+
+          git add --all
+          git commit --quiet -m "chore: Build version $NEXT_VERSION" || true
+          git push --force origin $NEXT_MAJOR_VERSION
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ github.token }}
+          commit: refs/tags/${{ steps.semver.outputs.nextMajor }}
+          tag: ${{ steps.semver.outputs.next }}

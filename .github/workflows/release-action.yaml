@@ -17,6 +17,7 @@ jobs:
         with:
           token: ${{ github.token }}
           branch: ${{ github.ref_name }}
+          noNewCommitBehavior: current
           noVersionBumpBehavior: patch
 
       - name: Create Changelog
