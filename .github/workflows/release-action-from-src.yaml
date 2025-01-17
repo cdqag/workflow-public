@@ -72,7 +72,7 @@ jobs:
         run: |
           set -e
           git config user.name "${{ inputs.commit-user-name }}"
-          git config user.email "${{ inputs.commit-user-email }}
+          git config user.email "${{ inputs.commit-user-email }}"
 
           git add --all
           git commit --quiet -m "chore: Build version $NEXT_VERSION" || true
