@@ -1,4 +1,4 @@
-name: Release from source directory
+name: Release action from source directory
 
 on:
   workflow_call:
@@ -38,14 +38,18 @@ jobs:
           noNewCommitBehavior: current
           noVersionBumpBehavior: patch
 
-      - name: Move artifacts to temp directory
-        run: |
-          mv "${{ inputs.src-dir }}" "${{ runner.temp }}/"
-
       - name: Setup envs
         run: |
+          echo "DIST_DIR=${{ runner.temp }}/dist" >> $GITHUB_ENV
           echo "NEXT_VERSION=${{ steps.semver.outputs.next }}" >> $GITHUB_ENV
           echo "NEXT_MAJOR_VERSION=${{ steps.semver.outputs.nextMajor }}" >> $GITHUB_ENV
+
+      - name: Move artifacts to temp directory
+        run: |
+          mkdir -p "$DIST_DIR"
+          mv "${{ inputs.src-dir }}" "$DIST_DIR/"
+          find . -maxdepth 1 -type f -regex ".*action.ya?ml" | head -1 | xargs -I {} mv {} "$DIST_DIR/"
+          find . -maxdepth 1 -type f -regex ".*LICENSE.*" | head -1 | xargs -I {} mv {} "$DIST_DIR/"
 
       - name: Checkout to major version branch
         run: |
@@ -60,9 +64,9 @@ jobs:
 
           find . -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} \;
 
-      - name: Move artifacts to working directory
+      - name: Move artifacts to destination branch
         run: |
-          mv "${{ runner.temp }}"/"${{ inputs.src-dir }}"/* ./
+          mv "$DIST_DIR"/* ./
 
       - name: Commit and push changes to major version branch
         run: |
