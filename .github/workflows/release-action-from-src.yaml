@@ -45,9 +45,7 @@ jobs:
 
       - name: Move artifacts to temp directory
         run: |
-          mkdir -p "$DIST_DIR"
-          cp -RLv "${{ inputs.src-dir }}" "$DIST_DIR/"
-          find "$DIST_DIR" -type d -name ".git" -exec rm -rf {} +
+          rsync -r -t -p -o -g -v -s --exclude=.git "${{ inputs.src-dir }}" "$DEST_DIR"
           find . -maxdepth 1 -type f -regex ".*action.ya?ml" | head -1 | xargs -I {} cp -v {} "$DIST_DIR/"
           find . -maxdepth 1 -type f -regex ".*LICENSE.*" | head -1 | xargs -I {} cp -v {} "$DIST_DIR/"
 
