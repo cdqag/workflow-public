@@ -26,8 +26,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          submodules: recursive
+          submodules: true
 
       - name: Get next version
         id: semver
