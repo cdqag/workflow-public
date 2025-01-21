@@ -1,5 +1,3 @@
-name: Release action from source directory
-
 on:
   workflow_call:
     inputs:
@@ -37,45 +35,18 @@ jobs:
           noNewCommitBehavior: current
           noVersionBumpBehavior: patch
 
-      - name: Setup envs
-        run: |
-          echo "DIST_DIR=${{ runner.temp }}/dist" >> $GITHUB_ENV
-          echo "NEXT_VERSION=${{ steps.semver.outputs.next }}" >> $GITHUB_ENV
-          echo "NEXT_MAJOR_VERSION=${{ steps.semver.outputs.nextMajor }}" >> $GITHUB_ENV
+      - name: Configure git user
+        uses: snow-actions/git-config-user@v1.0.0
+        with:
+          name: ${{ inputs.commit-user-name }}
+          email: ${{ inputs.commit-user-email }}
 
-      - name: Move artifacts to temp directory
-        run: |
-          mkdir -p "$DIST_DIR"
-          rsync -r -t -p -o -g -v -s --exclude=.git "./${{ inputs.src-dir }}" "$DEST_DIR"
-          find . -maxdepth 1 -type f -regex ".*action.ya?ml" | head -1 | xargs -I {} cp -v {} "$DIST_DIR/"
-          find . -maxdepth 1 -type f -regex ".*LICENSE.*" | head -1 | xargs -I {} cp -v {} "$DIST_DIR/"
-
-      - name: Checkout to major version branch
-        run: |
-          set -e
-          git fetch origin
-
-          if git show-ref --verify --quiet refs/heads/$NEXT_MAJOR_VERSION; then
-            git checkout $NEXT_MAJOR_VERSION
-          else
-            git checkout -b $NEXT_MAJOR_VERSION
-          fi
-
-          find . -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} \;
-
-      - name: Move artifacts to destination branch
-        run: |
-          mv "$DIST_DIR"/* ./
-
-      - name: Commit and push changes to major version branch
-        run: |
-          set -e
-          git config user.name "${{ inputs.commit-user-name }}"
-          git config user.email "${{ inputs.commit-user-email }}"
-
-          git add --all
-          git commit --quiet -m "chore: Build version $NEXT_VERSION" || true
-          git push --force origin $NEXT_MAJOR_VERSION
+      - name: Release src to major version branch
+        uses: cdqag/release-src-to-major-branch@v1
+        with:
+          src-dirs: ${{ inputs.src-dir }}
+          next-version: ${{ steps.semver.outputs.next }}
+          next-major-version: ${{ steps.semver.outputs.nextMajor }}
 
       - name: Release
         uses: ncipollo/release-action@v1
