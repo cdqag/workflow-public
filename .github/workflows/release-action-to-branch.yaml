@@ -40,8 +40,8 @@ jobs:
         run: |
           MAJOR=${VERSION%%.*}
 
-          if [[ $MAJOR == v* ]]; then
-            MAJOR=${MAJOR:1}
+          if [[ $MAJOR != v* ]]; then
+            MAJOR=v${MAJOR:1}
           fi
 
           if [[ $VERSION != v* ]]; then
