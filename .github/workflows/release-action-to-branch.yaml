@@ -1,0 +1,78 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+        default: ubuntu-latest
+
+      version:
+        type: string
+        required: true
+
+      dirs:
+        type: string
+        default: src
+
+      files:
+        type: string
+        default: 'action.ya?ml LICENSE README.md'
+
+      exclude:
+        type: string
+        default: ''
+
+      commit-user-name:
+        type: string
+        default: github-actions[bot]
+
+      commit-user-email:
+        type: string
+        default: github-actions[bot]@users.noreply.github.com
+
+jobs:
+  release:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Process version
+        id: version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          MAJOR=${VERSION%%.*}
+
+          if [[ $MAJOR == v* ]]; then
+            MAJOR=${MAJOR:1}
+          fi
+
+          if [[ $VERSION != v* ]]; then
+            VERSION=v$VERSION
+          fi
+
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "semver=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Configure git user
+        uses: snow-actions/git-config-user@v1.0.0
+        with:
+          name: ${{ inputs.commit-user-name }}
+          email: ${{ inputs.commit-user-email }}
+
+      - name: Release to major version branch
+        uses: cdqag/release-to-branch@v1
+        with:
+          branch: ${{ steps.version.outputs.major }}
+          dirs: ${{ inputs.dirs }}
+          files: ${{ inputs.files }}
+          exclude: ${{ inputs.exclude }}
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ github.token }}
+          commit: refs/heads/${{ steps.version.outputs.major }}
+          tag: ${{ steps.version.outputs.semver }}
