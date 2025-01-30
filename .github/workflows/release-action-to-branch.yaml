@@ -33,23 +33,11 @@ jobs:
   release:
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - name: Process version
+      - name: Normalize version
         id: version
-        env:
-          VERSION: ${{ inputs.version }}
-        run: |
-          MAJOR=${VERSION%%.*}
-
-          if [[ $MAJOR != v* ]]; then
-            MAJOR=v${MAJOR:1}
-          fi
-
-          if [[ $VERSION != v* ]]; then
-            VERSION=v$VERSION
-          fi
-
-          echo "major=$MAJOR" >> $GITHUB_OUTPUT
-          echo "semver=$VERSION" >> $GITHUB_OUTPUT
+        uses: cdqag/normalize-version@v1
+        with:
+          version: ${{ inputs.version }}
 
       - name: Checkout code
         uses: actions/checkout@v4
