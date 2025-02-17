@@ -5,10 +5,6 @@ on:
         type: string
         default: ubuntu-latest
 
-      ssh-key:
-        type: string
-        default: ''
-
       version:
         type: string
         required: true
@@ -31,7 +27,12 @@ on:
 
       commit-user-email:
         type: string
-        default: github-actions[bot]@users.noreply.github.com
+        default: github-actions[bot]@users.noreply.github.
+
+    secrets:
+      ssh-key:
+        description: 'SSH key for submodule checkout'
+        required: false
 
 jobs:
   release:
@@ -47,7 +48,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-          ssh-key: ${{ inputs.ssh-key }}
+          ssh-key: ${{ secrets.ssh-key }}
           persist-credentials: false
 
       - name: Configure git user
