@@ -5,6 +5,10 @@ on:
         type: string
         default: ubuntu-latest
 
+      ssh-key:
+        type: string
+        default: ''
+
       version:
         type: string
         required: true
@@ -43,6 +47,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+          ssh-key: ${{ inputs.ssh-key }}
+          persist-credentials: false
 
       - name: Configure git user
         uses: snow-actions/git-config-user@v1.0.0
