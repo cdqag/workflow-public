@@ -54,10 +54,10 @@ But if you don't mind that, this workflow is for you.
 
 **Used Actions**:
 
-* [cdqag/normalize-version@v1](https://github.com/cdqag/normalize-version/tree/v1/) to normalize the input version
+* [cdqag/action-normalize-version@v1](https://github.com/cdqag/action-normalize-version/tree/v1/) to normalize the input version
 * [actions/checkout@v4](https://github.com/actions/checkout/tree/v4/) to checkout the repository
 * [snow-actions/git-config-user@v1.0.0](https://github.com/snow-actions/git-config-user/tree/v1.0.0/) to configure git user
-* [cdqag/release-to-branch@v1](https://github.com/cdqag/release-to-branch/tree/v1/) to copy (release) files/directories to branch
+* [cdqag/action-release-to-branch@v1](https://github.com/cdqag/action-release-to-branch/tree/v1/) to copy (release) files/directories to branch
 * [ncipollo/release-action@v1](https://github.com/ncipollo/release-action/tree/v1/) to create the release
 
 **Usage**:

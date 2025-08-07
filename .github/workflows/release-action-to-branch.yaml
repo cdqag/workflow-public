@@ -40,7 +40,7 @@ jobs:
     steps:
       - name: Normalize version
         id: version
-        uses: cdqag/normalize-version@v1
+        uses: cdqag/action-normalize-version@v1
         with:
           version: ${{ inputs.version }}
 
@@ -58,7 +58,7 @@ jobs:
           email: ${{ inputs.commit-user-email }}
 
       - name: Release to major version branch
-        uses: cdqag/release-to-branch@v1
+        uses: cdqag/action-release-to-branch@v1
         with:
           branch: ${{ steps.version.outputs.major }}
           dirs: ${{ inputs.dirs }}
