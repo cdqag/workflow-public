@@ -19,6 +19,16 @@ This workflow has been created to automate process of releasing new version of c
 * [ncipollo/release-action@v1](https://github.com/ncipollo/release-action/tree/v1/) to create the release
 * [cdqag/update-majorver@v1](https://github.com/cdqag/update-majorver/tree/v1/) to create/update the major version tag
 
+**Prerequisites**:
+
+For new repositories without any existing tags, you must manually create an initial tag before running this workflow. The semver action requires at least one tag to calculate the next version.
+
+```bash
+# Create the first tag (e.g., v1.0.0 or v0.1.0)
+git tag -a v1.0.0 -m "<MESSAGE>"
+git push origin v1.0.0
+```
+
 **Usage**:
 
 ```yaml
